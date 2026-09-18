@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заработок за просмотр рекламы</title>
+    <!-- Подключаем официальный скрипт Telegram Mini Apps -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1 {
+            font-size: 22px;
+            color: #2481cc;
+        }
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+        .btn {
+            background-color: #2481cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:active {
+            background-color: #1a639b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Добро пожаловать!</h1>
+        <p>Здесь скоро появится реклама за вознаграждение.</p>
+        <button class="btn" onclick="watchAd()">Смотреть рекламу</button>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрываем приложение на весь экран
+
+        function watchAd() {
+            alert("Скоро здесь будет подключена реклама TADS!");
+        }
+    </script>
+</body>
+</html>
