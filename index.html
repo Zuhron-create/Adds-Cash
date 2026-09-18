@@ -3,58 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заработок за просмотр рекламы</title>
-    <!-- Подключаем официальный скрипт Telegram Mini Apps -->
+    <title>Бот для заработка</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
             color: #333;
-            text-align: center;
-            padding: 20px;
             margin: 0;
+            padding: 15px;
+            text-align: center;
         }
-        .container {
-            margin-top: 50px;
+        .header {
+            background: #2481cc;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
-        h1 {
-            font-size: 22px;
-            color: #2481cc;
+        .balance {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
         }
-        p {
-            font-size: 16px;
-            color: #666;
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .btn {
-            background-color: #2481cc;
-            color: white;
-            border: none;
-            padding: 12px 20px;
+            background-color: white;
+            color: #2481cc;
+            border: 2px solid #2481cc;
+            padding: 14px;
             font-size: 16px;
-            border-radius: 8px;
+            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
-            margin-top: 20px;
+            transition: 0.2s;
         }
         .btn:active {
-            background-color: #1a639b;
+            background-color: #2481cc;
+            color: white;
+        }
+        .btn-primary {
+            background-color: #2481cc;
+            color: white;
+        }
+        .section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        .active {
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Добро пожаловать!</h1>
-        <p>Здесь скоро появится реклама за вознаграждение.</p>
-        <button class="btn" onclick="watchAd()">Смотреть рекламу</button>
+
+    <!-- Шапка с балансом -->
+    <div class="header">
+        <div>Ваш баланс:</div>
+        <div class="balance" id="balance">0.00 ₽</div>
+    </div>
+
+    <!-- Главное меню (кнопки) -->
+    <div class="menu" id="mainMenu">
+        <button class="btn btn-primary" onclick="showSection('earnSection')">📺 Зарабатывать (Просмотр рекламы)</button>
+        <button class="btn" onclick="showSection('tasksSection')">📋 Задания</button>
+        <button class="btn" onclick="showSection('profileSection')">👤 Профиль</button>
+        <button class="btn" onclick="showSection('withdrawSection')">💳 Вывод средств</button>
+    </div>
+
+    <!-- Раздел: Зарабатывать -->
+    <div id="earnSection" class="section">
+        <h3>Просмотр рекламы</h3>
+        <p>Нажмите на кнопку ниже, чтобы посмотреть рекламу и получить за это деньги.</p>
+        <button class="btn btn-primary" style="width:100%" onclick="watchAd()">Смотреть рекламный ролик</button>
+        <br><br>
+        <button class="btn" style="width:100%" onclick="goBack()">Назад в меню</button>
+    </div>
+
+    <!-- Раздел: Задания -->
+    <div id="tasksSection" class="section">
+        <h3>Доступные задания</h3>
+        <p>Подписывайтесь на каналы и получайте вознаграждения!</p>
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><b>Подписка на партнерский канал</b> (+1.00 ₽)</p>
+            <button class="btn" style="padding: 8px 12px; font-size: 14px;" onclick="alert('Скоро здесь будет проверка подписки!')">Выполнить</button>
+        </div>
+        <button class="btn" style="width:100%; margin-top: 15px;" onclick="goBack()">Назад в меню</button>
+    </div>
+
+    <!-- Раздел: Профиль -->
+    <div id="profileSection" class="section">
+        <h3>Ваш профиль</h3>
+        <p>🆔 ID пользователя: <span id="userId">не определен</span></p>
+        <p>👁 Посмотрено рекламы: <span id="adsWatched">0</span> раз</p>
+        <p>📋 Выполнено заданий: <span id="tasksCompleted">0</span></p>
+        <button class="btn" style="width:100%; margin-top: 15px;" onclick="goBack()">Назад в меню</button>
+    </div>
+
+    <!-- Раздел: Вывод средств -->
+    <div id="withdrawSection" class="section">
+        <h3>Вывод средств</h3>
+        <p>Минимальная сумма для вывода: 50.00 ₽</p>
+        <label>Куда вывести (Номер карты / Кошелек):</label>
+        <input type="text" id="walletInput" placeholder="Введите реквизиты...">
+        <button class="btn btn-primary" style="width:100%" onclick="requestWithdraw()">Заказать выплату</button>
+        <button class="btn" style="width:100%; margin-top: 10px;" onclick="goBack()">Назад в меню</button>
     </div>
 
     <script>
-        // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрываем приложение на весь экран
+        tg.expand();
+
+        // Простые переменные для демонстрации (позже их привяжем к базе данных)
+        let userBalance = 0.00;
+        let countAds = 0;
+
+        // Показываем ID пользователя из Telegram, если он есть
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('userId').innerText = tg.initDataUnsafe.user.id;
+        }
+
+        function showSection(sectionId) {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function goBack() {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById('mainMenu').style.display = 'flex';
+        }
 
         function watchAd() {
-            alert("Скоро здесь будет подключена реклама TADS!");
+            // Имитация просмотра рекламы (позже заменим на рекламу от TADS)
+            countAds++;
+            userBalance += 0.50; // Добавляем 50 копеек за просмотр
+            
+            document.getElementById('balance').innerText = userBalance.toFixed(2) + ' ₽';
+            document.getElementById('adsWatched').innerText = countAds;
+            
+            alert("Реклама успешно просмотрена! Вам начислено 0.50 ₽");
+        }
+
+        function requestWithdraw() {
+            let wallet = document.getElementById('walletInput').value;
+            if(!wallet) {
+                alert("Пожалуйста, введите реквизиты для вывода!");
+                return;
+            }
+            if(userBalance < 50) {
+                alert("Недостаточно средств для вывода. Минимальная сумма 50 ₽.");
+                return;
+            }
+            alert("Заявка на вывод успешно создана!");
         }
     </script>
 </body>
