@@ -1,73 +1,144 @@
 <!DOCTYPE html>
-<html <lang="ru">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бот для заработка</title>
+    <title>Crypto/Ad Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --tg-theme-bg-color: #0f172a;
+            --tg-theme-text-color: #f8fafc;
+            --accent-color: #38bdf8;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
             margin: 0;
             padding: 15px;
+            padding-bottom: 90px; /* Место для нижнего меню */
             text-align: center;
+            /* Логотип на фоне */
+            background-image: url('logo.png'); /* Замените logo.png на имя вашей картинки или оставьте так */
+            background-repeat: no-repeat;
+            background-position: center 120px;
+            background-size: 200px auto;
+            background-attachment: fixed;
         }
+        /* Полупрозрачный слой, чтобы текст был читаемым поверх логотипа */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: -1;
+        }
+
         .header {
-            background: #2481cc;
-            color: white;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 20px;
         }
         .balance {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 800;
+            color: #38bdf8;
             margin-top: 5px;
         }
-        .menu {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .btn {
-            background-color: white;
-            color: #2481cc;
-            border: 2px solid #2481cc;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn:active {
-            background-color: #2481cc;
-            color: white;
-        }
-        .btn-primary {
-            background-color: #2481cc;
-            color: white;
-        }
+        
+        /* Секции контента */
         .section {
             display: none;
-            background: white;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
-            border-radius: 12px;
-            margin-top: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             text-align: left;
         }
         .active {
             display: block;
         }
-        input {
+
+        /* Кнопки */
+        .btn {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
             width: 100%;
-            padding: 10px;
             margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        /* Фиксированное нижнее меню */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 5px;
+            z-index: 1000;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+        .nav-item.active-tab {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        .nav-item span.icon {
+            font-size: 20px;
+        }
+
+        /* Таблица лидеров (Топ) */
+        .leader-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
             margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
             box-sizing: border-box;
         }
     </style>
@@ -76,103 +147,138 @@
 
     <!-- Шапка с балансом -->
     <div class="header">
-        <div>Ваш баланс:</div>
+        <div style="font-size: 14px; color: #94a3b8;">Ваш баланс</div>
         <div class="balance" id="balance">0.00 ₽</div>
     </div>
 
-    <!-- Главное меню (кнопки) -->
-    <div class="menu" id="mainMenu">
-        <button class="btn btn-primary" onclick="showSection('earnSection')">📺 Зарабатывать (Просмотр рекламы)</button>
-        <button class="btn" onclick="showSection('tasksSection')">📋 Задания</button>
-        <button class="btn" onclick="showSection('profileSection')">👤 Профиль</button>
-        <button class="btn" onclick="showSection('withdrawSection')">💳 Вывод средств</button>
+    <!-- 1. Раздел: Зарабатывать -->
+    <div id="earnSection" class="section active">
+        <h3>📺 Заработок на рекламе</h3>
+        <p style="color: #94a3b8; font-size: 14px;">Смотрите рекламные ролики и получайте вознаграждение на свой баланс.</p>
+        <button class="btn" onclick="watchAd()">Смотреть рекламу (+0.50 ₽)</button>
     </div>
 
-    <!-- Раздел: Зарабатывать -->
-    <div id="earnSection" class="section">
-        <h3>Просмотр рекламы</h3>
-        <p>Нажмите на кнопку ниже, чтобы посмотреть рекламу и получить за это деньги.</p>
-        <button class="btn btn-primary" style="width:100%" onclick="watchAd()">Смотреть рекламный ролик</button>
-        <br><br>
-        <button class="btn" style="width:100%" onclick="goBack()">Назад в меню</button>
-    </div>
-
-    <!-- Раздел: Задания -->
+    <!-- 2. Раздел: Задания -->
     <div id="tasksSection" class="section">
-        <h3>Доступные задания</h3>
-        <p>Подписывайтесь на каналы и получайте вознаграждения!</p>
-        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <p style="margin: 0 0 8px 0; font-size: 14px;"><b>Подписка на партнерский канал</b> (+1.00 ₽)</p>
-            <button class="btn" style="padding: 8px 12px; font-size: 14px;" onclick="alert('Скоро здесь будет проверка подписки!')">Выполнить</button>
+        <h3>📋 Задания</h3>
+        <p style="color: #94a3b8; font-size: 14px;">Выполняйте задания и получайте бонусы.</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
+            <div><b>Подписка на канал</b></div>
+            <div style="color: #38bdf8; font-size: 13px; margin: 4px 0;">+1.00 ₽</div>
+            <button class="btn" style="padding: 8px; font-size: 13px;" onclick="alert('Проверка подписки...')">Проверить</button>
         </div>
-        <button class="btn" style="width:100%; margin-top: 15px;" onclick="goBack()">Назад в меню</button>
     </div>
 
-    <!-- Раздел: Профиль -->
+    <!-- 3. Раздел: Топ 100 игроков -->
+    <div id="topSection" class="section">
+        <h3>🏆 Топ-100 лидеров</h3>
+        <p style="color: #94a3b8; font-size: 14px;">Самые активные участники проекта:</p>
+        <div id="leaderboardList">
+            <div class="leader-item"><span>1. 🥇 CryptoKing</span> <b>1,450 ₽</b></div>
+            <div class="leader-item"><span>2. 🥈 TelegramStar</span> <b>1,200 ₽</b></div>
+            <div class="leader-item"><span>3. 🥉 TonMaster</span> <b>980 ₽</b></div>
+            <div class="leader-item"><span>4. 👤 User_9942</span> <b>750 ₽</b></div>
+            <div class="leader-item"><span>5. 👤 CryptoUser</span> <b>510 ₽</b></div>
+        </div>
+    </div>
+
+    <!-- 4. Раздел: Профиль -->
     <div id="profileSection" class="section">
-        <h3>Ваш профиль</h3>
-        <p>🆔 ID пользователя: <span id="userId">не определен</span></p>
-        <p>👁 Посмотрено рекламы: <span id="adsWatched">0</span> раз</p>
+        <h3>👤 Ваш профиль</h3>
+        <p>🆔 ID: <span id="userId">не определен</span></p>
+        <p>👁 Посмотрено рекламы: <span id="adsWatched">0</span></p>
         <p>📋 Выполнено заданий: <span id="tasksCompleted">0</span></p>
-        <button class="btn" style="width:100%; margin-top: 15px;" onclick="goBack()">Назад в меню</button>
     </div>
 
-    <!-- Раздел: Вывод средств -->
+    <!-- 5. Раздел: Вывод средств -->
     <div id="withdrawSection" class="section">
-        <h3>Вывод средств</h3>
-        <p>Минимальная сумма для вывода: 50.00 ₽</p>
-        <label>Куда вывести (Номер карты / Кошелек):</label>
-        <input type="text" id="walletInput" placeholder="Введите реквизиты...">
-        <button class="btn btn-primary" style="width:100%" onclick="requestWithdraw()">Заказать выплату</button>
-        <button class="btn" style="width:100%; margin-top: 10px;" onclick="goBack()">Назад в меню</button>
+        <h3>💳 Вывод средств</h3>
+        <label>Куда выводим:</label>
+        <select id="withdrawMethod" onchange="changeWithdrawPlaceholder()">
+            <option value="ton">TON Кошелек</option>
+            <option value="stars">Telegram Stars ⭐</option>
+            <option value="card">Банковская карта / СБП</option>
+        </select>
+        
+        <label id="walletLabel">Адрес TON кошелька:</label>
+        <input type="text" id="walletInput" placeholder="UQD... (ваш кошелек)">
+        
+        <button class="btn" onclick="requestWithdraw()">Создать заявку</button>
+    </div>
+
+    <!-- Нижнее навигационное меню -->
+    <div class="nav-bar">
+        <button class="nav-item active-tab" onclick="switchTab('earnSection', this)">
+            <span class="icon">📺</span>Заработок
+        </button>
+        <button class="nav-item" onclick="switchTab('tasksSection', this)">
+            <span class="icon">📋</span>Задания
+        </button>
+        <button class="nav-item" onclick="switchTab('topSection', this)">
+            <span class="icon">🏆</span>Топ 100
+        </button>
+        <button class="nav-item" onclick="switchTab('profileSection', this)">
+            <span class="icon">👤</span>Профиль
+        </button>
+        <button class="nav-item" onclick="switchTab('withdrawSection', this)">
+            <span class="icon">💳</span>Вывод
+        </button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Простые переменные для демонстрации (позже их привяжем к базе данных)
         let userBalance = 0.00;
         let countAds = 0;
 
-        // Показываем ID пользователя из Telegram, если он есть
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('userId').innerText = tg.initDataUnsafe.user.id;
         }
 
-        function showSection(sectionId) {
-            document.getElementById('mainMenu').style.display = 'none';
+        function switchTab(sectionId, element) {
+            // Скрываем все разделы
             document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            // Показываем нужный
             document.getElementById(sectionId).classList.add('active');
-        }
 
-        function goBack() {
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById('mainMenu').style.display = 'flex';
+            // Переключаем активную кнопку внизу
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active-tab'));
+            element.classList.add('active-tab');
         }
 
         function watchAd() {
-            // Имитация просмотра рекламы (позже заменим на рекламу от TADS)
             countAds++;
-            userBalance += 0.50; // Добавляем 50 копеек за просмотр
-            
+            userBalance += 0.50;
             document.getElementById('balance').innerText = userBalance.toFixed(2) + ' ₽';
             document.getElementById('adsWatched').innerText = countAds;
+            alert("Реклама просмотрена! +0.50 ₽ зачислено.");
+        }
+
+        function changeWithdrawPlaceholder() {
+            let method = document.getElementById('withdrawMethod').value;
+            let label = document.getElementById('walletLabel');
+            let input = document.getElementById('walletInput');
             
-            alert("Реклама успешно просмотрена! Вам начислено 0.50 ₽");
+            if(method === 'ton') {
+                label.innerText = "Адрес TON кошелька:";
+                input.placeholder = "UQD... или EQD...";
+            } else if(method === 'stars') {
+                label.innerText = "Ваш Telegram username (@username):";
+                input.placeholder = "@your_username";
+            } else {
+                label.innerText = "Номер карты или телефона (СБП):";
+                input.placeholder = "2200 7000 ...";
+            }
         }
 
         function requestWithdraw() {
-            let wallet = document.getElementById('walletInput').value;
-            if(!wallet) {
-                alert("Пожалуйста, введите реквизиты для вывода!");
+            let val = document.getElementById('walletInput').value;
+            if(!val) {
+                alert("Заполните поле реквизитов!");
                 return;
             }
-            if(userBalance < 50) {
-                alert("Недостаточно средств для вывода. Минимальная сумма 50 ₽.");
-                return;
-            }
-            alert("Заявка на вывод успешно создана!");
+            alert("Заявка на вывод успешно отправлена!");
         }
     </script>
 </body>
