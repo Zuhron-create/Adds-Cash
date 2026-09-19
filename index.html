@@ -77,6 +77,11 @@
         .btn:active {
             transform: scale(0.98);
         }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
         .nav-bar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -137,8 +142,8 @@
     <!-- 1. Заработок -->
     <div id="earnSection" class="section active">
         <h3>📺 Заработок на рекламе</h3>
-        <p style="color: #94a3b8; font-size: 14px;">Смотрите рекламные ролики и получайте вознаграждение на свой баланс.</p>
-        <button class="btn" onclick="showAd()">Смотреть рекламу (+0.50 ₽)</button>
+        <p style="color: #94a3b8; font-size: 14px;">Смотрите рекламные ролики и получайте вознаграждение.</p>
+        <button class="btn" onclick="showAd()">Смотреть рекламу (+0.10 ₽)</button>
     </div>
 
     <!-- 2. Задания -->
@@ -162,15 +167,31 @@
         </div>
     </div>
 
-    <!-- 4. Профиль -->
+    <!-- 4. Профиль (включая Вывод и Пополнение) -->
     <div id="profileSection" class="section">
         <h3>👤 Ваш профиль</h3>
         <p>🆔 ID: <span id="userId">не определен</span></p>
         <p>👁 Посмотрено рекламы: <span id="adsWatched">0</span></p>
         <p>📋 Выполнено заданий: <span id="tasksCompleted">0</span></p>
+        <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 20px 0;">
+        
+        <button class="btn" onclick="showSection('topupSection')">➕ Пополнить баланс</button>
+        <button class="btn btn-secondary" onclick="showSection('withdrawSection')">💳 Вывод средств</button>
     </div>
 
-    <!-- 5. Вывод -->
+    <!-- Пополнение баланса -->
+    <div id="topupSection" class="section">
+        <h3>➕ Пополнение баланса</h3>
+        <label>Метод пополнения:</label>
+        <select id="topupMethod">
+            <option value="crypto">Криптовалюта (TON/USDT)</option>
+            <option value="stars">Telegram Stars ⭐</option>
+        </select>
+        <button class="btn" onclick="alert('Переход к оплате...')">Пополнить</button>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="showSection('profileSection')">Назад в профиль</button>
+    </div>
+
+    <!-- Вывод средств -->
     <div id="withdrawSection" class="section">
         <h3>💳 Вывод средств</h3>
         <label>Куда выводим:</label>
@@ -182,6 +203,7 @@
         <label id="walletLabel">Адрес TON кошелька:</label>
         <input type="text" id="walletInput" placeholder="UQD...">
         <button class="btn" onclick="requestWithdraw()">Создать заявку</button>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="showSection('profileSection')">Назад в профиль</button>
     </div>
 
     <!-- Навигация -->
@@ -190,7 +212,6 @@
         <button class="nav-item" onclick="switchTab('tasksSection', this)"><span class="icon">📋</span>Задания</button>
         <button class="nav-item" onclick="switchTab('topSection', this)"><span class="icon">🏆</span>Топ 100</button>
         <button class="nav-item" onclick="switchTab('profileSection', this)"><span class="icon">👤</span>Профиль</button>
-        <button class="nav-item" onclick="switchTab('withdrawSection', this)"><span class="icon">💳</span>Вывод</button>
     </div>
 
     <script>
@@ -211,19 +232,22 @@
             element.classList.add('active-tab');
         }
 
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
         // Инициализация AdsGram Controller с вашим Block ID
         const adController = window.Adsgram.init({ blockId: "48698" });
 
         function showAd() {
             adController.show().then((result) => {
-                // Сработает ТОЛЬКО при успешном просмотре реальной рекламы
                 countAds++;
-                userBalance += 0.50;
+                userBalance += 0.10; // Награда 10 копеек
                 document.getElementById('balance').innerText = userBalance.toFixed(2) + ' ₽';
                 document.getElementById('adsWatched').innerText = countAds;
-                alert("Реклама успешно просмотрена! +0.50 ₽ зачислено.");
+                alert("Реклама успешно просмотрена! +0.10 ₽ зачислено.");
             }).catch((result) => {
-                // Если реклама еще не подгрузилась или пользователь закрыл её раньше времени
                 console.log(result);
                 alert("В данный момент рекламные ролики подготавливаются. Попробуйте чуть позже!");
             });
