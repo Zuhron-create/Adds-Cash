@@ -216,15 +216,16 @@
 
         function showAd() {
             adController.show().then((result) => {
-                // Реклама успешно просмотрена до конца
+                // Сработает ТОЛЬКО при успешном просмотре реальной рекламы
                 countAds++;
                 userBalance += 0.50;
                 document.getElementById('balance').innerText = userBalance.toFixed(2) + ' ₽';
                 document.getElementById('adsWatched').innerText = countAds;
                 alert("Реклама успешно просмотрена! +0.50 ₽ зачислено.");
             }).catch((result) => {
-                // Пользователь закрыл рекламу досрочно или произошла ошибка
-                alert("Реклама не была досмотрена до конца, вознаграждение не начислено.");
+                // Если реклама еще не подгрузилась или пользователь закрыл её раньше времени
+                console.log(result);
+                alert("В данный момент рекламные ролики подготавливаются. Попробуйте чуть позже!");
             });
         }
 
